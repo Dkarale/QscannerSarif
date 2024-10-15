@@ -59,7 +59,6 @@ jobs:
         run: |
           export QUALYS_ACCESS_TOKEN=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0cXVheTlpdCIsImlzcyI6InFhcyIsInBvcnRhbFVzZXJJZCI6OTM5Mzg2NSwic2VjcmV0SWQiOiI5NjQwMmRkOC1lYmE2LTQ3YTItYTUxNi01MzdjNDg1YWIzNTgiLCJxd2ViVXNlcklkIjoxNTkyMTI3LCJhdWQiOiJxYXMiLCJjdXN0b21lcklkIjo0MTQ0MzUsInVzZXJVdWlkIjoiZGE0ODg1YWItNmQ3MS00ZWEzLTgyMTYtNTg2N2RjNmIxM2M4Iiwic3Vic2NyaXB0aW9uVXVpZCI6IjcxMzAxYzRhLTk1ZWMtZDdkYy04MWE0LWY1MmMwMGU0MjIzMCIsImV4cCI6MTc0MDg3MzU5OSwic3Vic2NyaXB0aW9uSWQiOjEwNjQ4OTQsInRva2VuVHlwZSI6InN1YnNjcmlwdGlvbiIsImlhdCI6MTcxMDE1MjAwMSwianRpIjoiMjE4YjM5ZjktN2FkNC00NGYyLTgxODUtZjIxNjcxNGM1NThmIn0.xFEMnnXw3gGG1CtyYqi0JtAgNuTR2HnGhqTuAL3n5VT2G0tc8F_5toTkai0Q9Z24kbAc2XA9B4yNj2eYlfayfQ
           echo $QUALYS_ACCESS_TOKEN
-          continue-on-error: true
       - name: Image scan through Qscanner
         run: |
          image_sha=$(sudo docker inspect -f '{{.Id}}' iojs:latest)
