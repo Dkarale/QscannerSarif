@@ -62,7 +62,7 @@ jobs:
       - name: Image scan through Qscanner
         continue-on-error: true
         run: |
-         image_sha=$(sudo docker inspect -f '{{.Id}}' iojs:latest)
+         image_sha=$(sudo docker inspect -f '{{.Id}}' qualysdockerhub/overlay-functional:crm-127187-dsl-minimal-0.0.5)
          # sockpath=$(sudo docker info -f '{{.DockerRootDir}}')
          # sockpath=$(echo $sockpath | awk -v srch="data" -v repl="docker.sock" '{ sub(srch,repl,$0); print $0 }')
          # echo $sockpath
