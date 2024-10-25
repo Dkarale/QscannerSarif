@@ -34,7 +34,7 @@ jobs:
       # - name: Docker version
       #   run: docker info
       - name: Docker image pull
-        run: sudo docker pull qualysdockerhub/overlay-functional:crm-127187-dsl-minimal-0.0.5
+        run: sudo docker pull bkimminich/juice-shop:latest
       # - name: Docker qscanner image pull
       #   run: sudo docker pull art-hq.intranet.qualys.com:5001/qualys/internal/qscanner:4.3.0-12-dev-linux-amd64-1728887376
       # - name: Build Docker image
@@ -46,7 +46,7 @@ jobs:
         run: sudo docker images
       - name: docker inspect
         run: |
-         image_sha=$(sudo docker inspect -f '{{.Id}}' qualysdockerhub/overlay-functional:crm-127187-dsl-minimal-0.0.5)
+         image_sha=$(sudo docker inspect -f '{{.Id}}' bkimminich/juice-shop:latest)
          echo "Image SHA: $image_sha"
          sudo docker history $image_sha
       # - name: save multi-arch image
@@ -62,7 +62,7 @@ jobs:
       - name: Image scan through Qscanner
         continue-on-error: true
         run: |
-         image_sha=$(sudo docker inspect -f '{{.Id}}' qualysdockerhub/overlay-functional:crm-127187-dsl-minimal-0.0.5)
+         image_sha=$(sudo docker inspect -f '{{.Id}}' bkimminich/juice-shop:latest)
          # sockpath=$(sudo docker info -f '{{.DockerRootDir}}')
          # sockpath=$(echo $sockpath | awk -v srch="data" -v repl="docker.sock" '{ sub(srch,repl,$0); print $0 }')
          # echo $sockpath
@@ -74,7 +74,7 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           # Path to SARIF file relative to the root of the repository
-          sarif_file: /home/ubuntu/Qscanner-4.3/sarif-reports/evaluate-policy/e07dcc4c4b08f808c00e76822b388c3e1164afcc7ed9556919c486c218f985c8-Report.sarif.json
+          sarif_file: /home/ubuntu/Qscanner-4.3/sarif-reports/evaluate-policy/520e3f10057c57a8b3dc0651ab5e9f8601938fc07f7112e397b3b92f4904f2b1-Report.sarif.json
           # Optional category for the results
           # Used to differentiate multiple results for one commit
           category: my-analysis-tool
