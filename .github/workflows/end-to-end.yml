@@ -73,7 +73,7 @@ jobs:
          export QUALYS_ACCESS_TOKEN=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhcGVrc19hYjciLCJpc3MiOiJxYXMiLCJwb3J0YWxVc2VySWQiOjg3MjQ0NDQ2MSwic2VjcmV0SWQiOiI2YTdmZjdjZC00YzA0LTQ3NmQtOWQ0OS0wYjU0ZjdkN2NlMzEiLCJxd2ViVXNlcklkIjoxMDcwOTkzLCJhdWQiOiJxYXMiLCJjdXN0b21lcklkIjoxOTk0NjMyLCJ1c2VyVXVpZCI6ImNiYWIxZmVlLTIyZjEtZjY3Zi04M2QzLWJhMjVhYWExNTFjMCIsInN1YnNjcmlwdGlvblV1aWQiOiIzMDNjM2QwZS0wODkwLTcxOWUtODE2ZS0xNGZiNGU4MzcxMzIiLCJleHAiOjE3NjYwNDE5NTMsInN1YnNjcmlwdGlvbklkIjoxMjcyMTQ2LCJ0b2tlblR5cGUiOiJzdWJzY3JpcHRpb24iLCJpYXQiOjE3MzQ1MDU5NTMsImp0aSI6IjY2NDc3ZDZiLTFkMTktNGIwNS1iODAxLWY0NzlhMWU2Mjg3NyJ9.KW-7wI56--0raWw1EfJfl5XqzKPUz61YtUzVawVzPJ4vk4qjyh5jR8_Aooy1LtphtqqA5sDlJO7F31LAsk0yOA
          IMAGE_LIST_FILE=images.txt  
          while IFS= read -r image; do
-         echo "Pulling and scanning $image"
+         echo "Pulling & scanning $image"
          sudo docker pull $image
          image_sha=$(sudo docker inspect -f '{{.Id}}' $image)
          safe_image_name=$(echo $image | sed 's/[/:]/_/g')
