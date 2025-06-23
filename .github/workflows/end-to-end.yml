@@ -88,9 +88,14 @@ jobs:
          -o /home/ubuntu/Qscanner-4.3/sarif-reports/$safe_image_name \
          -m evaluate-policy \
          --scan-timeout 30m \
-         --skip-verify-tls
-         echo "Scan for $image completed. Sleeping 10 seconds..."
-         sleep 10
+         --skip-verify-tls \
+         -l debug \
+         --scan-types pkg,secret \
+         --storage-driver docker-overlay2
+         #echo "Scan for $image completed. Sleeping 10 seconds..."
+         #sleep 10
+         echo "Deleting scanned image: $image"
+         sudo docker rmi $image || true
          done < "$IMAGE_LIST_FILE"
       # - name: Checkout repository
       #   uses: actions/checkout@v4
