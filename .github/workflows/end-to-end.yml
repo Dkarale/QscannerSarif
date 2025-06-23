@@ -58,38 +58,17 @@ jobs:
       - name: Qscanner token
         run: |
           export QUALYS_ACCESS_TOKEN=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhcGVrc19hYjciLCJpc3MiOiJxYXMiLCJwb3J0YWxVc2VySWQiOjg3MjQ0NDQ2MSwic2VjcmV0SWQiOiI2YTdmZjdjZC00YzA0LTQ3NmQtOWQ0OS0wYjU0ZjdkN2NlMzEiLCJxd2ViVXNlcklkIjoxMDcwOTkzLCJhdWQiOiJxYXMiLCJjdXN0b21lcklkIjoxOTk0NjMyLCJ1c2VyVXVpZCI6ImNiYWIxZmVlLTIyZjEtZjY3Zi04M2QzLWJhMjVhYWExNTFjMCIsInN1YnNjcmlwdGlvblV1aWQiOiIzMDNjM2QwZS0wODkwLTcxOWUtODE2ZS0xNGZiNGU4MzcxMzIiLCJleHAiOjE3NjYwNDE5NTMsInN1YnNjcmlwdGlvbklkIjoxMjcyMTQ2LCJ0b2tlblR5cGUiOiJzdWJzY3JpcHRpb24iLCJpYXQiOjE3MzQ1MDU5NTMsImp0aSI6IjY2NDc3ZDZiLTFkMTktNGIwNS1iODAxLWY0NzlhMWU2Mjg3NyJ9.KW-7wI56--0raWw1EfJfl5XqzKPUz61YtUzVawVzPJ4vk4qjyh5jR8_Aooy1LtphtqqA5sDlJO7F31LAsk0yOA
-      #- name: Image scan through Qscanner
-      # continue-on-error: true
-      #  run: |
+      - name: Image scan through Qscanner
+        continue-on-error: true
+        run: |
       #   image_sha=$(sudo docker inspect -f '{{.Id}}' bkimminich/juice-shop:latest)
          # sockpath=$(sudo docker info -f '{{.DockerRootDir}}')
          # sockpath=$(echo $sockpath | awk -v srch="data" -v repl="docker.sock" '{ sub(srch,repl,$0); print $0 }')
          # echo $sockpath
-      #   echo "sudo /home/ubuntu/Qscanner-4.3/qscanner image $image_sha  --pod ENG-POD01 --access-token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhcGVrc19hYjciLCJpc3MiOiJxYXMiLCJwb3J0YWxVc2VySWQiOjg3MjQ0NDQ2MSwic2VjcmV0SWQiOiI2YTdmZjdjZC00YzA0LTQ3NmQtOWQ0OS0wYjU0ZjdkN2NlMzEiLCJxd2ViVXNlcklkIjoxMDcwOTkzLCJhdWQiOiJxYXMiLCJjdXN0b21lcklkIjoxOTk0NjMyLCJ1c2VyVXVpZCI6ImNiYWIxZmVlLTIyZjEtZjY3Zi04M2QzLWJhMjVhYWExNTFjMCIsInN1YnNjcmlwdGlvblV1aWQiOiIzMDNjM2QwZS0wODkwLTcxOWUtODE2ZS0xNGZiNGU4MzcxMzIiLCJleHAiOjE3NjYwNDE5NTMsInN1YnNjcmlwdGlvbklkIjoxMjcyMTQ2LCJ0b2tlblR5cGUiOiJzdWJzY3JpcHRpb24iLCJpYXQiOjE3MzQ1MDU5NTMsImp0aSI6IjY2NDc3ZDZiLTFkMTktNGIwNS1iODAxLWY0NzlhMWU2Mjg3NyJ9.KW-7wI56--0raWw1EfJfl5XqzKPUz61YtUzVawVzPJ4vk4qjyh5jR8_Aooy1LtphtqqA5sDlJO7F31LAsk0yOA"
-      #   sudo env DISABLE_SBOM_UPLOAD=yes env SHOW_RESPONSE_BODY_IN_BACKEND_ERROR=yes /home/ubuntu/Qscanner-4.3/qscanner image $image_sha  --pod ENG-POD01 --access-token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhcGVrc19hYjciLCJpc3MiOiJxYXMiLCJwb3J0YWxVc2VySWQiOjg3MjQ0NDQ2MSwic2VjcmV0SWQiOiI2YTdmZjdjZC00YzA0LTQ3NmQtOWQ0OS0wYjU0ZjdkN2NlMzEiLCJxd2ViVXNlcklkIjoxMDcwOTkzLCJhdWQiOiJxYXMiLCJjdXN0b21lcklkIjoxOTk0NjMyLCJ1c2VyVXVpZCI6ImNiYWIxZmVlLTIyZjEtZjY3Zi04M2QzLWJhMjVhYWExNTFjMCIsInN1YnNjcmlwdGlvblV1aWQiOiIzMDNjM2QwZS0wODkwLTcxOWUtODE2ZS0xNGZiNGU4MzcxMzIiLCJleHAiOjE3NjYwNDE5NTMsInN1YnNjcmlwdGlvbklkIjoxMjcyMTQ2LCJ0b2tlblR5cGUiOiJzdWJzY3JpcHRpb24iLCJpYXQiOjE3MzQ1MDU5NTMsImp0aSI6IjY2NDc3ZDZiLTFkMTktNGIwNS1iODAxLWY0NzlhMWU2Mjg3NyJ9.KW-7wI56--0raWw1EfJfl5XqzKPUz61YtUzVawVzPJ4vk4qjyh5jR8_Aooy1LtphtqqA5sDlJO7F31LAsk0yOA --report-format sarif -o /home/ubuntu/Qscanner-4.3/sarif-reports/evaluate-policy -m evaluate-policy --scan-timeout 30m --skip-verify-tls
+         echo "sudo /home/ubuntu/Qscanner-4.3/qscanner image $image_sha  --pod ENG-POD01 --access-token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhcGVrc19hYjciLCJpc3MiOiJxYXMiLCJwb3J0YWxVc2VySWQiOjg3MjQ0NDQ2MSwic2VjcmV0SWQiOiI2YTdmZjdjZC00YzA0LTQ3NmQtOWQ0OS0wYjU0ZjdkN2NlMzEiLCJxd2ViVXNlcklkIjoxMDcwOTkzLCJhdWQiOiJxYXMiLCJjdXN0b21lcklkIjoxOTk0NjMyLCJ1c2VyVXVpZCI6ImNiYWIxZmVlLTIyZjEtZjY3Zi04M2QzLWJhMjVhYWExNTFjMCIsInN1YnNjcmlwdGlvblV1aWQiOiIzMDNjM2QwZS0wODkwLTcxOWUtODE2ZS0xNGZiNGU4MzcxMzIiLCJleHAiOjE3NjYwNDE5NTMsInN1YnNjcmlwdGlvbklkIjoxMjcyMTQ2LCJ0b2tlblR5cGUiOiJzdWJzY3JpcHRpb24iLCJpYXQiOjE3MzQ1MDU5NTMsImp0aSI6IjY2NDc3ZDZiLTFkMTktNGIwNS1iODAxLWY0NzlhMWU2Mjg3NyJ9.KW-7wI56--0raWw1EfJfl5XqzKPUz61YtUzVawVzPJ4vk4qjyh5jR8_Aooy1LtphtqqA5sDlJO7F31LAsk0yOA"
+         sudo env DISABLE_SBOM_UPLOAD=yes env SHOW_RESPONSE_BODY_IN_BACKEND_ERROR=yes /home/ubuntu/Qscanner-4.3/qscanner image $image_sha  --pod ENG-POD01 --access-token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhcGVrc19hYjciLCJpc3MiOiJxYXMiLCJwb3J0YWxVc2VySWQiOjg3MjQ0NDQ2MSwic2VjcmV0SWQiOiI2YTdmZjdjZC00YzA0LTQ3NmQtOWQ0OS0wYjU0ZjdkN2NlMzEiLCJxd2ViVXNlcklkIjoxMDcwOTkzLCJhdWQiOiJxYXMiLCJjdXN0b21lcklkIjoxOTk0NjMyLCJ1c2VyVXVpZCI6ImNiYWIxZmVlLTIyZjEtZjY3Zi04M2QzLWJhMjVhYWExNTFjMCIsInN1YnNjcmlwdGlvblV1aWQiOiIzMDNjM2QwZS0wODkwLTcxOWUtODE2ZS0xNGZiNGU4MzcxMzIiLCJleHAiOjE3NjYwNDE5NTMsInN1YnNjcmlwdGlvbklkIjoxMjcyMTQ2LCJ0b2tlblR5cGUiOiJzdWJzY3JpcHRpb24iLCJpYXQiOjE3MzQ1MDU5NTMsImp0aSI6IjY2NDc3ZDZiLTFkMTktNGIwNS1iODAxLWY0NzlhMWU2Mjg3NyJ9.KW-7wI56--0raWw1EfJfl5XqzKPUz61YtUzVawVzPJ4vk4qjyh5jR8_Aooy1LtphtqqA5sDlJO7F31LAsk0yOA --report-format sarif -o /home/ubuntu/Qscanner-4.3/sarif-reports/evaluate-policy -m evaluate-policy --scan-timeout 30m --skip-verify-tls
       # - name: Checkout repository
       #   uses: actions/checkout@v4
-      - name: Repeated scan with delay
-        continue-on-error: true
-        run: |
-         export QUALYS_ACCESS_TOKEN=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhcGVrc19hYjciLCJpc3MiOiJxYXMiLCJwb3J0YWxVc2VySWQiOjg3MjQ0NDQ2MSwic2VjcmV0SWQiOiI2YTdmZjdjZC00YzA0LTQ3NmQtOWQ0OS0wYjU0ZjdkN2NlMzEiLCJxd2ViVXNlcklkIjoxMDcwOTkzLCJhdWQiOiJxYXMiLCJjdXN0b21lcklkIjoxOTk0NjMyLCJ1c2VyVXVpZCI6ImNiYWIxZmVlLTIyZjEtZjY3Zi04M2QzLWJhMjVhYWExNTFjMCIsInN1YnNjcmlwdGlvblV1aWQiOiIzMDNjM2QwZS0wODkwLTcxOWUtODE2ZS0xNGZiNGU4MzcxMzIiLCJleHAiOjE3NjYwNDE5NTMsInN1YnNjcmlwdGlvbklkIjoxMjcyMTQ2LCJ0b2tlblR5cGUiOiJzdWJzY3JpcHRpb24iLCJpYXQiOjE3MzQ1MDU5NTMsImp0aSI6IjY2NDc3ZDZiLTFkMTktNGIwNS1iODAxLWY0NzlhMWU2Mjg3NyJ9.KW-7wI56--0raWw1EfJfl5XqzKPUz61YtUzVawVzPJ4vk4qjyh5jR8_Aooy1LtphtqqA5sDlJO7F31LAsk0yOA
-         for i in {1..10}; do  
-         echo "Scanning iteration $i"
-         image_sha=$(sudo docker inspect -f '{{.Id}}' bkimminich/juice-shop:latest)
-         sudo env DISABLE_SBOM_UPLOAD=yes \
-         env SHOW_RESPONSE_BODY_IN_BACKEND_ERROR=yes \
-         /home/ubuntu/Qscanner-4.3/qscanner image $image_sha \
-         --pod ENG-POD01 \
-         --access-token $QUALYS_ACCESS_TOKEN \
-         --report-format sarif \
-         -o /home/ubuntu/Qscanner-4.3/sarif-reports/evaluate-policy \
-         -m evaluate-policy \
-         --scan-timeout 30m \
-         --skip-verify-tls \
-         --cache none
-         echo "Sleeping 10 seconds before next scan..."
-         sleep 10
-         done
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v3
         with:
