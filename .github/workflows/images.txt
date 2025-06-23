@@ -1,0 +1,3 @@
+bkimminich/juice-shop:latest
+alpine:3.19
+nginx:1.25.2
