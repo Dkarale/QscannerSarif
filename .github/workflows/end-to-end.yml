@@ -67,6 +67,29 @@ jobs:
          # echo $sockpath
          echo "sudo /home/ubuntu/Qscanner-4.3/qscanner image $image_sha  --pod ENG-POD01 --access-token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhcGVrc19hYjciLCJpc3MiOiJxYXMiLCJwb3J0YWxVc2VySWQiOjg3MjQ0NDQ2MSwic2VjcmV0SWQiOiI2YTdmZjdjZC00YzA0LTQ3NmQtOWQ0OS0wYjU0ZjdkN2NlMzEiLCJxd2ViVXNlcklkIjoxMDcwOTkzLCJhdWQiOiJxYXMiLCJjdXN0b21lcklkIjoxOTk0NjMyLCJ1c2VyVXVpZCI6ImNiYWIxZmVlLTIyZjEtZjY3Zi04M2QzLWJhMjVhYWExNTFjMCIsInN1YnNjcmlwdGlvblV1aWQiOiIzMDNjM2QwZS0wODkwLTcxOWUtODE2ZS0xNGZiNGU4MzcxMzIiLCJleHAiOjE3NjYwNDE5NTMsInN1YnNjcmlwdGlvbklkIjoxMjcyMTQ2LCJ0b2tlblR5cGUiOiJzdWJzY3JpcHRpb24iLCJpYXQiOjE3MzQ1MDU5NTMsImp0aSI6IjY2NDc3ZDZiLTFkMTktNGIwNS1iODAxLWY0NzlhMWU2Mjg3NyJ9.KW-7wI56--0raWw1EfJfl5XqzKPUz61YtUzVawVzPJ4vk4qjyh5jR8_Aooy1LtphtqqA5sDlJO7F31LAsk0yOA"
          sudo env DISABLE_SBOM_UPLOAD=yes env SHOW_RESPONSE_BODY_IN_BACKEND_ERROR=yes /home/ubuntu/Qscanner-4.3/qscanner image $image_sha  --pod ENG-POD01 --access-token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhcGVrc19hYjciLCJpc3MiOiJxYXMiLCJwb3J0YWxVc2VySWQiOjg3MjQ0NDQ2MSwic2VjcmV0SWQiOiI2YTdmZjdjZC00YzA0LTQ3NmQtOWQ0OS0wYjU0ZjdkN2NlMzEiLCJxd2ViVXNlcklkIjoxMDcwOTkzLCJhdWQiOiJxYXMiLCJjdXN0b21lcklkIjoxOTk0NjMyLCJ1c2VyVXVpZCI6ImNiYWIxZmVlLTIyZjEtZjY3Zi04M2QzLWJhMjVhYWExNTFjMCIsInN1YnNjcmlwdGlvblV1aWQiOiIzMDNjM2QwZS0wODkwLTcxOWUtODE2ZS0xNGZiNGU4MzcxMzIiLCJleHAiOjE3NjYwNDE5NTMsInN1YnNjcmlwdGlvbklkIjoxMjcyMTQ2LCJ0b2tlblR5cGUiOiJzdWJzY3JpcHRpb24iLCJpYXQiOjE3MzQ1MDU5NTMsImp0aSI6IjY2NDc3ZDZiLTFkMTktNGIwNS1iODAxLWY0NzlhMWU2Mjg3NyJ9.KW-7wI56--0raWw1EfJfl5XqzKPUz61YtUzVawVzPJ4vk4qjyh5jR8_Aooy1LtphtqqA5sDlJO7F31LAsk0yOA --cache none --report-format sarif -o /home/ubuntu/Qscanner-4.3/sarif-reports/evaluate-policy -m evaluate-policy --scan-timeout 30m --skip-verify-tls
+      - name: Scan images from list
+        continue-on-error: true
+        run: |
+         export QUALYS_ACCESS_TOKEN=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhcGVrc19hYjciLCJpc3MiOiJxYXMiLCJwb3J0YWxVc2VySWQiOjg3MjQ0NDQ2MSwic2VjcmV0SWQiOiI2YTdmZjdjZC00YzA0LTQ3NmQtOWQ0OS0wYjU0ZjdkN2NlMzEiLCJxd2ViVXNlcklkIjoxMDcwOTkzLCJhdWQiOiJxYXMiLCJjdXN0b21lcklkIjoxOTk0NjMyLCJ1c2VyVXVpZCI6ImNiYWIxZmVlLTIyZjEtZjY3Zi04M2QzLWJhMjVhYWExNTFjMCIsInN1YnNjcmlwdGlvblV1aWQiOiIzMDNjM2QwZS0wODkwLTcxOWUtODE2ZS0xNGZiNGU4MzcxMzIiLCJleHAiOjE3NjYwNDE5NTMsInN1YnNjcmlwdGlvbklkIjoxMjcyMTQ2LCJ0b2tlblR5cGUiOiJzdWJzY3JpcHRpb24iLCJpYXQiOjE3MzQ1MDU5NTMsImp0aSI6IjY2NDc3ZDZiLTFkMTktNGIwNS1iODAxLWY0NzlhMWU2Mjg3NyJ9.KW-7wI56--0raWw1EfJfl5XqzKPUz61YtUzVawVzPJ4vk4qjyh5jR8_Aooy1LtphtqqA5sDlJO7F31LAsk0yOA
+         IMAGE_LIST_FILE=images.txt  
+         while IFS= read -r image; do
+         echo "Pulling and scanning $image"
+         sudo docker pull $image
+         image_sha=$(sudo docker inspect -f '{{.Id}}' $image)
+         safe_image_name=$(echo $image | sed 's/[/:]/_/g')
+         sudo env DISABLE_SBOM_UPLOAD=yes \
+         env SHOW_RESPONSE_BODY_IN_BACKEND_ERROR=yes \
+         /home/ubuntu/Qscanner-4.3/qscanner image $image_sha \
+         --pod ENG-POD01 \
+         --access-token $QUALYS_ACCESS_TOKEN \
+         --report-format sarif \
+         -o /home/ubuntu/Qscanner-4.3/sarif-reports/$safe_image_name \
+         -m evaluate-policy \
+         --scan-timeout 30m \
+         --skip-verify-tls
+         echo "Scan for $image completed. Sleeping 10 seconds..."
+         sleep 10
+         done < "$IMAGE_LIST_FILE"
       # - name: Checkout repository
       #   uses: actions/checkout@v4
       - name: Upload SARIF file
