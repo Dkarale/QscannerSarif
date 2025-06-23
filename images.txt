@@ -1,7 +1,6 @@
 bkimminich/juice-shop:latest
 alpine:3.19
 nginx:1.25.2
-ubuntu:latest
 qualysdockerhub/overlay-functional:openjdk
 qualysdockerhub/overlay-functional:multiline-secrets
 qualysdockerhub/overlay-functional:secretcount2
