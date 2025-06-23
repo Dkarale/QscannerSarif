@@ -86,7 +86,6 @@ jobs:
          --access-token $QUALYS_ACCESS_TOKEN \
          --report-format sarif \
          -o /home/ubuntu/Qscanner-4.3/sarif-reports/$safe_image_name \
-         -m evaluate-policy \
          --scan-timeout 30m \
          --skip-verify-tls \
          -l debug \
