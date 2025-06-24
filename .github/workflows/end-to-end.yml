@@ -89,7 +89,7 @@ jobs:
          --scan-timeout 30m \
          --skip-verify-tls \
          -l debug \
-         --scan-types pkg \
+         --scan-types pkg,secret \
          --storage-driver docker-overlay2
          #echo "Scan for $image completed. Sleeping 10 seconds..."
          #sleep 10
