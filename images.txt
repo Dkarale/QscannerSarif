@@ -12,6 +12,7 @@ qualysdockerhub/overlay-functional:elasticsearch-6.8.19
 qualysdockerhub/overlay-functional:couchbase-6.5.0
 qualysdockerhub/overlay-functional:nuxeo-10.10
 qualysdockerhub/overlay-functional:storm-1.2
+qualysdockerhub/sensor_automation:all-combo-keywords-by-date
 qualysdockerhub/overlay-functional:lightstreamer-7.2.0-jdk9
 qualysdockerhub/overlay-functional:flink-1.14.0-scala_2.12
 qualysdockerhub/overlay-functional:sonarqube-8.7.1-enterprise
@@ -23,6 +24,7 @@ qualysdockerhub/overlay-functional:perf5
 qualysdockerhub/overlay-functional:perf4
 qualysdockerhub/overlay-functional:perf3
 qualysdockerhub/overlay-functional:perf2
+qualysdockerhub/sensor_automation:all-dsa-5gb-image
 qualysdockerhub/overlay-functional:perf1
 qualysdockerhub/overlay-functional:testgqwqw-sca-perf
 qualysdockerhub/overlay-functional:cas672-sca-perf
