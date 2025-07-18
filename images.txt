@@ -38,3 +38,4 @@ qualysdockerhub/overlay-functional:perf10
 qualysdockerhub/overlay-functional:perf9
 qualysdockerhub/overlay-functional:perf8
 qualysdockerhub/overlay-functional:perf7
+qualysdockerhub/overlay-functional:static-almalinux3-sca-secret-malware
