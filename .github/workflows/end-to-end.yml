@@ -57,7 +57,7 @@ jobs:
       #     ls
       - name: Qscanner token
         run: |
-         export QUALYS_ACCESS_TOKEN=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJxdWF5czlyczEwIiwiaXNzIjoicWFzIiwicG9ydGFsVXNlcklkIjo0OTA0ODczLCJzZWNyZXRJZCI6IjZkMjA1YjdjLWM3YmQtNDFjOC05MjZkLTVhNDgzZTE1ZmJmMCIsInF3ZWJVc2VySWQiOjE1NjIxODQsImF1ZCI6InFhcyIsImN1c3RvbWVySWQiOjEyNjYyMSwidXNlclV1aWQiOiI2ZGY1MmQwZi01NTFiLTQ1NTYtODFmMS00ZWRjNzQzMGNhYTAiLCJzdWJzY3JpcHRpb25VdWlkIjoiZWM2NGQ1ODktZjMyOS1kY2VjLTgyYTctODA0NTE1Yjg5MjA0IiwiZXhwIjoxNzgyMzY3NTM1LCJzdWJzY3JpcHRpb25JZCI6NDEsInRva2VuVHlwZSI6InN1YnNjcmlwdGlvbiIsImlhdCI6MTc1MDgzMTUzNSwianRpIjoiMzY0YzY3MzItZWNmNy00NzdkLWJlMTctYTYyZGQwNjI1YjI4In0.KBHemQKJs5-K2Nc5VgEGfzSQo09jPsoHiRZF-nnaNR5blcBdldny76L4H6v8LeNBrurx1PwJnqU3sNRG1TCrcA
+         export QUALYS_ACCESS_TOKEN=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJxdWF5c3htZDYiLCJpc3MiOiJxYXMiLCJwb3J0YWxVc2VySWQiOjExMTAxNTIzNzMsInNlY3JldElkIjoiY2ZkMTFiOTEtNjQ3Yy00ODlmLTlhMzQtN2RlNWE5NzY2ZTUwIiwicXdlYlVzZXJJZCI6NTYwNTQwNywiYXVkIjoicWFzIiwiY3VzdG9tZXJJZCI6Mjk3NjQyNCwidXNlclV1aWQiOiI0YTcyNWRmMy1iNmFjLWZmY2QtODA5YS1mZmMyMmQ5Yzg5NWQiLCJzdWJzY3JpcHRpb25VdWlkIjoiMDRmMTA5YTYtNTdmYi02YjUzLTgyZTktZjg5Y2RmMGI4ZGQ5IiwiZXhwIjoxODAwNjEzMzk1LCJzdWJzY3JpcHRpb25JZCI6NDUyMjcwMCwidG9rZW5UeXBlIjoic3Vic2NyaXB0aW9uIiwiaWF0IjoxNzY5MDc3Mzk1LCJqdGkiOiI4Zjk2NDE3Zi1mMjVhLTQzYTEtODg5My00NjAxMDA5MmNhOWQifQ.wrQj0JpeEXnWnXLkEqGFJFQn1znY8VQhWk6jbhPlTGhCWERg5Ci5CR9wndbNge1JRq7uwr9i7ASUCJCSzIqBCQ
       - name: Image scan through Qscanner
         continue-on-error: true
         run: |
@@ -65,27 +65,27 @@ jobs:
          # sockpath=$(sudo docker info -f '{{.DockerRootDir}}')
          # sockpath=$(echo $sockpath | awk -v srch="data" -v repl="docker.sock" '{ sub(srch,repl,$0); print $0 }')
          # echo $sockpath
-         echo "sudo /home/ubuntu/Qscanner-4.3/qscanner image $image_sha  --pod CA1 --access-token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJxdWF5czlyczEwIiwiaXNzIjoicWFzIiwicG9ydGFsVXNlcklkIjo0OTA0ODczLCJzZWNyZXRJZCI6IjZkMjA1YjdjLWM3YmQtNDFjOC05MjZkLTVhNDgzZTE1ZmJmMCIsInF3ZWJVc2VySWQiOjE1NjIxODQsImF1ZCI6InFhcyIsImN1c3RvbWVySWQiOjEyNjYyMSwidXNlclV1aWQiOiI2ZGY1MmQwZi01NTFiLTQ1NTYtODFmMS00ZWRjNzQzMGNhYTAiLCJzdWJzY3JpcHRpb25VdWlkIjoiZWM2NGQ1ODktZjMyOS1kY2VjLTgyYTctODA0NTE1Yjg5MjA0IiwiZXhwIjoxNzgyMzY3NTM1LCJzdWJzY3JpcHRpb25JZCI6NDEsInRva2VuVHlwZSI6InN1YnNjcmlwdGlvbiIsImlhdCI6MTc1MDgzMTUzNSwianRpIjoiMzY0YzY3MzItZWNmNy00NzdkLWJlMTctYTYyZGQwNjI1YjI4In0.KBHemQKJs5-K2Nc5VgEGfzSQo09jPsoHiRZF-nnaNR5blcBdldny76L4H6v8LeNBrurx1PwJnqU3sNRG1TCrcA"
-         sudo env DISABLE_SBOM_UPLOAD=yes env SHOW_RESPONSE_BODY_IN_BACKEND_ERROR=yes /home/ubuntu/Qscanner-4.3/qscanner image $image_sha  --pod CA1 --access-token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJxdWF5czlyczEwIiwiaXNzIjoicWFzIiwicG9ydGFsVXNlcklkIjo0OTA0ODczLCJzZWNyZXRJZCI6IjZkMjA1YjdjLWM3YmQtNDFjOC05MjZkLTVhNDgzZTE1ZmJmMCIsInF3ZWJVc2VySWQiOjE1NjIxODQsImF1ZCI6InFhcyIsImN1c3RvbWVySWQiOjEyNjYyMSwidXNlclV1aWQiOiI2ZGY1MmQwZi01NTFiLTQ1NTYtODFmMS00ZWRjNzQzMGNhYTAiLCJzdWJzY3JpcHRpb25VdWlkIjoiZWM2NGQ1ODktZjMyOS1kY2VjLTgyYTctODA0NTE1Yjg5MjA0IiwiZXhwIjoxNzgyMzY3NTM1LCJzdWJzY3JpcHRpb25JZCI6NDEsInRva2VuVHlwZSI6InN1YnNjcmlwdGlvbiIsImlhdCI6MTc1MDgzMTUzNSwianRpIjoiMzY0YzY3MzItZWNmNy00NzdkLWJlMTctYTYyZGQwNjI1YjI4In0.KBHemQKJs5-K2Nc5VgEGfzSQo09jPsoHiRZF-nnaNR5blcBdldny76L4H6v8LeNBrurx1PwJnqU3sNRG1TCrcA --cache none -l debug --report-format sarif -o /home/ubuntu/Qscanner-4.3/sarif-reports/evaluate-policy -m evaluate-policy --scan-timeout 30m --skip-verify-tls --scan-types pkg,secret
+         echo "sudo /home/ubuntu/Qscanner-5.0.0/qscanner image $image_sha  --pod ENG-POD04 --skip-verify-tls --access-token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJxdWF5c3htZDYiLCJpc3MiOiJxYXMiLCJwb3J0YWxVc2VySWQiOjExMTAxNTIzNzMsInNlY3JldElkIjoiY2ZkMTFiOTEtNjQ3Yy00ODlmLTlhMzQtN2RlNWE5NzY2ZTUwIiwicXdlYlVzZXJJZCI6NTYwNTQwNywiYXVkIjoicWFzIiwiY3VzdG9tZXJJZCI6Mjk3NjQyNCwidXNlclV1aWQiOiI0YTcyNWRmMy1iNmFjLWZmY2QtODA5YS1mZmMyMmQ5Yzg5NWQiLCJzdWJzY3JpcHRpb25VdWlkIjoiMDRmMTA5YTYtNTdmYi02YjUzLTgyZTktZjg5Y2RmMGI4ZGQ5IiwiZXhwIjoxODAwNjEzMzk1LCJzdWJzY3JpcHRpb25JZCI6NDUyMjcwMCwidG9rZW5UeXBlIjoic3Vic2NyaXB0aW9uIiwiaWF0IjoxNzY5MDc3Mzk1LCJqdGkiOiI4Zjk2NDE3Zi1mMjVhLTQzYTEtODg5My00NjAxMDA5MmNhOWQifQ.wrQj0JpeEXnWnXLkEqGFJFQn1znY8VQhWk6jbhPlTGhCWERg5Ci5CR9wndbNge1JRq7uwr9i7ASUCJCSzIqBCQ"
+         sudo env DISABLE_SBOM_UPLOAD=yes env SHOW_RESPONSE_BODY_IN_BACKEND_ERROR=yes /home/ubuntu/Qscanner-5.0.0/qscanner image $image_sha  --pod ENG-POD04 --skip-verify-tls --access-token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJxdWF5c3htZDYiLCJpc3MiOiJxYXMiLCJwb3J0YWxVc2VySWQiOjExMTAxNTIzNzMsInNlY3JldElkIjoiY2ZkMTFiOTEtNjQ3Yy00ODlmLTlhMzQtN2RlNWE5NzY2ZTUwIiwicXdlYlVzZXJJZCI6NTYwNTQwNywiYXVkIjoicWFzIiwiY3VzdG9tZXJJZCI6Mjk3NjQyNCwidXNlclV1aWQiOiI0YTcyNWRmMy1iNmFjLWZmY2QtODA5YS1mZmMyMmQ5Yzg5NWQiLCJzdWJzY3JpcHRpb25VdWlkIjoiMDRmMTA5YTYtNTdmYi02YjUzLTgyZTktZjg5Y2RmMGI4ZGQ5IiwiZXhwIjoxODAwNjEzMzk1LCJzdWJzY3JpcHRpb25JZCI6NDUyMjcwMCwidG9rZW5UeXBlIjoic3Vic2NyaXB0aW9uIiwiaWF0IjoxNzY5MDc3Mzk1LCJqdGkiOiI4Zjk2NDE3Zi1mMjVhLTQzYTEtODg5My00NjAxMDA5MmNhOWQifQ.wrQj0JpeEXnWnXLkEqGFJFQn1znY8VQhWk6jbhPlTGhCWERg5Ci5CR9wndbNge1JRq7uwr9i7ASUCJCSzIqBCQ --cache none -l debug --report-format sarif -o /home/ubuntu/Qscanner-5.0.0/sarif-reports/evaluate-policy -m evaluate-policy --scan-timeout 30m --skip-verify-tls --scan-types pkg,secret
       - name: Checkout repository
         uses: actions/checkout@v4 
       - name: Scan images from list
         continue-on-error: true
         run: |
-         export QUALYS_ACCESS_TOKEN=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJxdWF5czlyczEwIiwiaXNzIjoicWFzIiwicG9ydGFsVXNlcklkIjo0OTA0ODczLCJzZWNyZXRJZCI6IjZkMjA1YjdjLWM3YmQtNDFjOC05MjZkLTVhNDgzZTE1ZmJmMCIsInF3ZWJVc2VySWQiOjE1NjIxODQsImF1ZCI6InFhcyIsImN1c3RvbWVySWQiOjEyNjYyMSwidXNlclV1aWQiOiI2ZGY1MmQwZi01NTFiLTQ1NTYtODFmMS00ZWRjNzQzMGNhYTAiLCJzdWJzY3JpcHRpb25VdWlkIjoiZWM2NGQ1ODktZjMyOS1kY2VjLTgyYTctODA0NTE1Yjg5MjA0IiwiZXhwIjoxNzgyMzY3NTM1LCJzdWJzY3JpcHRpb25JZCI6NDEsInRva2VuVHlwZSI6InN1YnNjcmlwdGlvbiIsImlhdCI6MTc1MDgzMTUzNSwianRpIjoiMzY0YzY3MzItZWNmNy00NzdkLWJlMTctYTYyZGQwNjI1YjI4In0.KBHemQKJs5-K2Nc5VgEGfzSQo09jPsoHiRZF-nnaNR5blcBdldny76L4H6v8LeNBrurx1PwJnqU3sNRG1TCrcA
+         export QUALYS_ACCESS_TOKEN=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJxdWF5c3htZDYiLCJpc3MiOiJxYXMiLCJwb3J0YWxVc2VySWQiOjExMTAxNTIzNzMsInNlY3JldElkIjoiY2ZkMTFiOTEtNjQ3Yy00ODlmLTlhMzQtN2RlNWE5NzY2ZTUwIiwicXdlYlVzZXJJZCI6NTYwNTQwNywiYXVkIjoicWFzIiwiY3VzdG9tZXJJZCI6Mjk3NjQyNCwidXNlclV1aWQiOiI0YTcyNWRmMy1iNmFjLWZmY2QtODA5YS1mZmMyMmQ5Yzg5NWQiLCJzdWJzY3JpcHRpb25VdWlkIjoiMDRmMTA5YTYtNTdmYi02YjUzLTgyZTktZjg5Y2RmMGI4ZGQ5IiwiZXhwIjoxODAwNjEzMzk1LCJzdWJzY3JpcHRpb25JZCI6NDUyMjcwMCwidG9rZW5UeXBlIjoic3Vic2NyaXB0aW9uIiwiaWF0IjoxNzY5MDc3Mzk1LCJqdGkiOiI4Zjk2NDE3Zi1mMjVhLTQzYTEtODg5My00NjAxMDA5MmNhOWQifQ.wrQj0JpeEXnWnXLkEqGFJFQn1znY8VQhWk6jbhPlTGhCWERg5Ci5CR9wndbNge1JRq7uwr9i7ASUCJCSzIqBCQ
          IMAGE_LIST_FILE=images.txt  
          while IFS= read -r image; do
          echo "Pulling & scanning $image"
          sudo docker pull $image
          image_sha=$(sudo docker inspect -f '{{.Id}}' $image)
          safe_image_name=$(echo $image | sed 's/[/:]/_/g')
-         sudo env DISABLE_SBOM_UPLOAD=yes \
+         sudo env DISABLE_SBOM_UPLOAD=no \
          env SHOW_RESPONSE_BODY_IN_BACKEND_ERROR=yes \
-         /home/ubuntu/Qscanner-4.3/qscanner image $image_sha \
-         --pod CA1 \
+         /home/ubuntu/Qscanner-5.0.0/qscanner image $image_sha \
+         --pod ENG-POD04 \
          --access-token $QUALYS_ACCESS_TOKEN \
          --report-format sarif \
-         -o /home/ubuntu/Qscanner-4.3/sarif-reports/$safe_image_name \
+         -o /home/ubuntu/Qscanner-5.0.0/sarif-reports/$safe_image_name \
          --scan-timeout 30m \
          --skip-verify-tls \
          -l debug \
@@ -103,7 +103,7 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           # Path to SARIF file relative to the root of the repository
-          sarif_file: /home/ubuntu/Qscanner-4.3/sarif-reports/evaluate-policy/520e3f10057c57a8b3dc0651ab5e9f8601938fc07f7112e397b3b92f4904f2b1-Report.sarif.json
+          sarif_file: /home/ubuntu/Qscanner-5.0.0/sarif-reports/evaluate-policy/520e3f10057c57a8b3dc0651ab5e9f8601938fc07f7112e397b3b92f4904f2b1-Report.sarif.json
           # Optional category for the results
           # Used to differentiate multiple results for one commit
           category: my-analysis-tool
