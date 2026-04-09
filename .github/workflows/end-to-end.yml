@@ -1,79 +1,154 @@
-run: |
-  IMAGE_LIST_FILE=images.txt
-  SARIF_REPORT_DIR=/home/ubuntu/Qscanner-5.0.0/sarif-reports
-  SARIF_PATHS=()
+name: Sarif complete workflow
+on:
+  push:
+    branches:
+      - main
+jobs:
+  docker:
+    permissions: write-all
+    runs-on: self-hosted
+    steps:
+      - name: Docker image pull
+        run: sudo docker pull bkimminich/juice-shop:latest
 
-  while IFS= read -r image; do
-    echo "-------------------------------------------"
-    echo "Pulling & scanning: $image"
+      - name: List docker images
+        run: sudo docker images
 
-    if ! sudo docker pull $image; then
-      echo "⚠️ Failed to pull $image, skipping..."
-      continue
-    fi
+      - name: Docker inspect
+        run: |
+          image_sha=$(sudo docker inspect -f '{{.Id}}' bkimminich/juice-shop:latest)
+          echo "Image SHA: $image_sha"
+          sudo docker history $image_sha
 
-    image_sha=$(sudo docker inspect -f '{{.Id}}' $image)
-    image_sha_plain=$(echo $image_sha | sed 's/sha256://')
-    safe_image_name=$(echo $image | sed 's/[/:]/_/g')
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    # ✅ Print all env variables before scan
-    echo "-------------------------------------------"
-    echo "🔍 Environment variables for: $image"
-    echo "-------------------------------------------"
-    echo "QUALYS_ACCESS_TOKEN  : [REDACTED]"
-    echo "DISABLE_SBOM_UPLOAD  : no"
-    echo "GITHUB_REPOSITORY    : $GITHUB_REPOSITORY"
-    echo "GITHUB_REF_NAME      : $GITHUB_REF_NAME"
-    echo "GITHUB_EVENT_NAME    : $GITHUB_EVENT_NAME"
-    echo "GITHUB_SHA           : $GITHUB_SHA"
-    echo "GITHUB_TRIGGERING_ACTOR : $GITHUB_TRIGGERING_ACTOR"
-    echo "GITHUB_RUN_ID        : $GITHUB_RUN_ID"
-    echo "GITHUB_SERVER_URL    : $GITHUB_SERVER_URL"
-    echo "GIT_COMMITTER_NAME   : $GIT_COMMITTER_NAME"
-    echo "IMAGE                : $image"
-    echo "IMAGE_SHA            : $image_sha_plain"
-    echo "SAFE_IMAGE_NAME      : $safe_image_name"
-    echo "SARIF_OUTPUT_DIR     : $SARIF_REPORT_DIR/$safe_image_name"
-    echo "-------------------------------------------"
+      - name: Scan images from list
+        continue-on-error: true
+        env:
+          QUALYS_ACCESS_TOKEN: ${{ secrets.QUALYS_ACCESS_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GIT_COMMITTER_NAME: ${{ github.event.head_commit.author.name }}
+        run: |
+          IMAGE_LIST_FILE=images.txt
+          SARIF_REPORT_DIR=/home/ubuntu/Qscanner-5.0.0/sarif-reports
+          SARIF_PATHS=()
 
-    sudo -E env \
-      QUALYS_ACCESS_TOKEN=$QUALYS_ACCESS_TOKEN \
-      DISABLE_SBOM_UPLOAD=no \
-      SHOW_RESPONSE_BODY_IN_BACKEND_ERROR=yes \
-      GITHUB_REPOSITORY=$GITHUB_REPOSITORY \
-      GITHUB_REF_NAME=$GITHUB_REF_NAME \
-      GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME \
-      GITHUB_SHA=$GITHUB_SHA \
-      GITHUB_TRIGGERING_ACTOR=$GITHUB_TRIGGERING_ACTOR \
-      GITHUB_RUN_ID=$GITHUB_RUN_ID \
-      GITHUB_SERVER_URL=$GITHUB_SERVER_URL \
-      GIT_COMMITTER_NAME="$GIT_COMMITTER_NAME" \
-    /home/ubuntu/Qscanner-5.0.0/qscanner image $image_sha \
-      --pod ENG-POD04 \
-      --access-token $QUALYS_ACCESS_TOKEN \
-      --report-format sarif \
-      -o $SARIF_REPORT_DIR/$safe_image_name \
-      --scan-timeout 30m \
-      --skip-verify-tls \
-      -l debug \
-      --scan-types pkg,secret \
-      -m evaluate-policy \
-      --storage-driver docker-overlay2 || true
+          while IFS= read -r image; do
+            echo "==========================================="
+            echo "📦 Processing image: $image"
+            echo "==========================================="
 
-    sarif_file=$(find $SARIF_REPORT_DIR/$safe_image_name -name "${image_sha_plain}*-Report.sarif.json" 2>/dev/null | head -1)
+            # ✅ Skip to next image if pull fails
+            if ! sudo docker pull $image; then
+              echo "⚠️ Failed to pull $image, skipping..."
+              continue
+            fi
 
-    if [ -n "$sarif_file" ]; then
-      echo "✅ SARIF report found: $sarif_file"
-      SARIF_PATHS+=("$sarif_file")
-    else
-      echo "⚠️ No SARIF report found for $image"
-    fi
+            image_sha=$(sudo docker inspect -f '{{.Id}}' $image)
+            image_sha_plain=$(echo $image_sha | sed 's/sha256://')
+            safe_image_name=$(echo $image | sed 's/[/:]/_/g')
 
-    echo "Deleting scanned image: $image"
-    sudo docker rmi $image || true
+            # ✅ Print all env variables before scan
+            echo "-------------------------------------------"
+            echo "🔍 Environment variables for: $image"
+            echo "-------------------------------------------"
+            echo "QUALYS_ACCESS_TOKEN     : [REDACTED]"
+            echo "DISABLE_SBOM_UPLOAD     : no"
+            echo "SHOW_RESPONSE_BODY      : yes"
+            echo "GITHUB_REPOSITORY       : $GITHUB_REPOSITORY"
+            echo "GITHUB_REF_NAME         : $GITHUB_REF_NAME"
+            echo "GITHUB_EVENT_NAME       : $GITHUB_EVENT_NAME"
+            echo "GITHUB_SHA              : $GITHUB_SHA"
+            echo "GITHUB_TRIGGERING_ACTOR : $GITHUB_TRIGGERING_ACTOR"
+            echo "GITHUB_RUN_ID           : $GITHUB_RUN_ID"
+            echo "GITHUB_SERVER_URL       : $GITHUB_SERVER_URL"
+            echo "GIT_COMMITTER_NAME      : $GIT_COMMITTER_NAME"
+            echo "IMAGE                   : $image"
+            echo "IMAGE_SHA               : $image_sha_plain"
+            echo "SAFE_IMAGE_NAME         : $safe_image_name"
+            echo "SARIF_OUTPUT_DIR        : $SARIF_REPORT_DIR/$safe_image_name"
+            echo "-------------------------------------------"
 
-  done < "$IMAGE_LIST_FILE"
+            # ✅ Run QScanner — || true ensures exit code 43 (AUDIT) won't stop the loop
+            sudo -E env \
+              QUALYS_ACCESS_TOKEN=$QUALYS_ACCESS_TOKEN \
+              DISABLE_SBOM_UPLOAD=no \
+              SHOW_RESPONSE_BODY_IN_BACKEND_ERROR=yes \
+              GITHUB_REPOSITORY=$GITHUB_REPOSITORY \
+              GITHUB_REF_NAME=$GITHUB_REF_NAME \
+              GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME \
+              GITHUB_SHA=$GITHUB_SHA \
+              GITHUB_TRIGGERING_ACTOR=$GITHUB_TRIGGERING_ACTOR \
+              GITHUB_RUN_ID=$GITHUB_RUN_ID \
+              GITHUB_SERVER_URL=$GITHUB_SERVER_URL \
+              GIT_COMMITTER_NAME="$GIT_COMMITTER_NAME" \
+            /home/ubuntu/Qscanner-5.0.0/qscanner image $image_sha \
+              --pod ENG-POD04 \
+              --access-token $QUALYS_ACCESS_TOKEN \
+              --report-format sarif \
+              -o $SARIF_REPORT_DIR/$safe_image_name \
+              --scan-timeout 30m \
+              --skip-verify-tls \
+              -l debug \
+              --scan-types pkg,secret \
+              -m evaluate-policy \
+              --storage-driver docker-overlay2 || true
 
-  echo "-------------------------------------------"
-  echo "SARIF reports collected:"
-  printf '%s\n' "${SARIF_PATHS[@]}" | tee /home/ubuntu/Qscanner-5.0.0/sarif-reports/sarif_paths.txt
+            # ✅ Dynamically find SARIF file using image SHA
+            sarif_file=$(find $SARIF_REPORT_DIR/$safe_image_name -name "${image_sha_plain}*-Report.sarif.json" 2>/dev/null | head -1)
+
+            if [ -n "$sarif_file" ]; then
+              echo "✅ SARIF report found: $sarif_file"
+              SARIF_PATHS+=("$sarif_file")
+            else
+              echo "⚠️ No SARIF report found for $image in $SARIF_REPORT_DIR/$safe_image_name"
+            fi
+
+            echo "🗑️  Deleting scanned image: $image"
+            sudo docker rmi $image || true
+
+          done < "$IMAGE_LIST_FILE"
+
+          # ✅ Print summary of all collected SARIF reports
+          echo "==========================================="
+          echo "📊 SARIF reports collected:"
+          echo "==========================================="
+          if [ ${#SARIF_PATHS[@]} -eq 0 ]; then
+            echo "⚠️ No SARIF reports were generated"
+          else
+            printf '%s\n' "${SARIF_PATHS[@]}"
+          fi
+
+          # ✅ Write paths to file for upload step
+          printf '%s\n' "${SARIF_PATHS[@]}" | tee /home/ubuntu/Qscanner-5.0.0/sarif-reports/sarif_paths.txt
+
+      # ✅ Upload each SARIF file dynamically
+      - name: Upload SARIF files
+        run: |
+          SARIF_PATHS_FILE=/home/ubuntu/Qscanner-5.0.0/sarif-reports/sarif_paths.txt
+
+          if [ ! -f "$SARIF_PATHS_FILE" ] || [ ! -s "$SARIF_PATHS_FILE" ]; then
+            echo "⚠️ No SARIF reports to upload"
+            exit 0
+          fi
+
+          echo "==========================================="
+          echo "⬆️  Uploading SARIF reports"
+          echo "==========================================="
+
+          while IFS= read -r sarif_file; do
+            echo "Uploading: $sarif_file"
+            gh sarif upload "$sarif_file" \
+              --repo ${{ github.repository }} \
+              --ref ${{ github.ref }} \
+              --commit ${{ github.sha }} || echo "⚠️ Upload failed for $sarif_file, continuing..."
+          done < "$SARIF_PATHS_FILE"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
