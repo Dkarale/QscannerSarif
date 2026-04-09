@@ -21,48 +21,7 @@ jobs:
           echo "Image SHA: $image_sha"
           sudo docker history $image_sha
 
-      - name: Image scan through Qscanner
-        continue-on-error: true
-        env:
-          # ✅ FIX 1: Declare token at step level so it persists
-          QUALYS_ACCESS_TOKEN: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJxdWF5c3htZDYiLCJpc3MiOiJxYXMiLCJwb3J0YWxVc2VySWQiOjExMTAxNTIzNzMsInNlY3JldElkIjoiY2ZkMTFiOTEtNjQ3Yy00ODlmLTlhMzQtN2RlNWE5NzY2ZTUwIiwicXdlYlVzZXJJZCI6NTYwNTQwNywiYXVkIjoicWFzIiwiY3VzdG9tZXJJZCI6Mjk3NjQyNCwidXNlclV1aWQiOiI0YTcyNWRmMy1iNmFjLWZmY2QtODA5YS1mZmMyMmQ5Yzg5NWQiLCJzdWJzY3JpcHRpb25VdWlkIjoiMDRmMTA5YTYtNTdmYi02YjUzLTgyZTktZjg5Y2RmMGI4ZGQ5IiwiZXhwIjoxODAwNjEzMzk1LCJzdWJzY3JpcHRpb25JZCI6NDUyMjcwMCwidG9rZW5UeXBlIjoic3Vic2NyaXB0aW9uIiwiaWF0IjoxNzY5MDc3Mzk1LCJqdGkiOiI4Zjk2NDE3Zi1mMjVhLTQzYTEtODg5My00NjAxMDA5MmNhOWQifQ.wrQj0JpeEXnWnXLkEqGFJFQn1znY8VQhWk6jbhPlTGhCWERg5Ci5CR9wndbNge1JRq7uwr9i7ASUCJCSzIqBCQ"
-          # ✅ FIX 2: Explicitly forward GitHub context vars for pipeline metadata
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_REF_NAME: ${{ github.ref_name }}
-          GITHUB_EVENT_NAME: ${{ github.event_name }}
-          GITHUB_SHA: ${{ github.sha }}
-          GITHUB_TRIGGERING_ACTOR: ${{ github.triggering_actor }}
-          GITHUB_RUN_ID: ${{ github.run_id }}
-          GITHUB_SERVER_URL: ${{ github.server_url }}
-          # ✅ FIX 3: Pass actual commit author (not just the trigger actor)
-          GIT_COMMITTER_NAME: ${{ github.event.head_commit.author.name }}
-        run: |
-          image_sha=$(sudo docker inspect -f '{{.Id}}' bkimminich/juice-shop:latest)
-          # ✅ FIX 4: Pass all env vars through sudo using env key=value chain
-          sudo -E env \
-            QUALYS_ACCESS_TOKEN=$QUALYS_ACCESS_TOKEN \
-            DISABLE_SBOM_UPLOAD=yes \
-            SHOW_RESPONSE_BODY_IN_BACKEND_ERROR=yes \
-            GITHUB_REPOSITORY=$GITHUB_REPOSITORY \
-            GITHUB_REF_NAME=$GITHUB_REF_NAME \
-            GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME \
-            GITHUB_SHA=$GITHUB_SHA \
-            GITHUB_TRIGGERING_ACTOR=$GITHUB_TRIGGERING_ACTOR \
-            GITHUB_RUN_ID=$GITHUB_RUN_ID \
-            GITHUB_SERVER_URL=$GITHUB_SERVER_URL \
-            GIT_COMMITTER_NAME="$GIT_COMMITTER_NAME" \
-          /home/ubuntu/Qscanner-5.0.0/qscanner image $image_sha \
-            --pod ENG-POD04 \
-            --skip-verify-tls \
-            --access-token $QUALYS_ACCESS_TOKEN \
-            --cache none \
-            -l debug \
-            --report-format sarif \
-            -o /home/ubuntu/Qscanner-5.0.0/sarif-reports/evaluate-policy \
-            -m evaluate-policy \
-            --scan-timeout 30m \
-            --scan-types pkg,secret
-
+      #
       - name: Checkout repository
         uses: actions/checkout@v4
 
