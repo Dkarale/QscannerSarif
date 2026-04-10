@@ -1,7 +1,3 @@
-bkimminich/juice-shop:latest
-alpine:3.19
-qualysdockerhub/secret-detector-automation:non-root-all-secrets
-nginx:1.25.2
 qualysdockerhub/overlay-functional:openjdk
 qualysdockerhub/overlay-functional:multiline-secrets
 qualysdockerhub/overlay-functional:secretcount2
