@@ -35,6 +35,7 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
           GITHUB_SERVER_URL: ${{ github.server_url }}
           GIT_COMMITTER_NAME: ${{ github.event.head_commit.author.name }}
+          COMMIT_DATETIME: ${{ github.event.head_commit.timestamp }}
         run: |
           IMAGE_LIST_FILE=images.txt
           SARIF_REPORT_DIR=/home/ubuntu/Qscanner-5.0.0/sarif-reports
@@ -74,6 +75,7 @@ jobs:
             echo "IMAGE_SHA               : $image_sha_plain"
             echo "SAFE_IMAGE_NAME         : $safe_image_name"
             echo "SARIF_OUTPUT_DIR        : $SARIF_REPORT_DIR/$safe_image_name"
+            echo "COMMIT_DATETIME         : $COMMIT_DATETIME"
             echo "-------------------------------------------"
 
             # ✅ Run QScanner — || true ensures exit code 43 (AUDIT) won't stop the loop
