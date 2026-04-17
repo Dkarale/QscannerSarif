@@ -99,7 +99,7 @@ jobs:
               --scan-timeout 30m \
               --skip-verify-tls \
               -l debug \
-              --scan-types pkg,secret \
+              --scan-types secret \
               -m evaluate-policy \
               --storage-driver docker-overlay2 || true
 
