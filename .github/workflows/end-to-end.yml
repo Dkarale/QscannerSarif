@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+
 jobs:
   docker:
     permissions: write-all
@@ -26,7 +27,8 @@ jobs:
       - name: Scan images from list
         continue-on-error: true
         env:
-          QUALYS_ACCESS_TOKEN: ${{ secrets.QUALYS_ACCESS_TOKEN }}
+          QUALYS_CLIENT_ID: ${{ secrets.QUALYS_CLIENT_ID }}
+          QUALYS_CLIENT_SECRET: ${{ secrets.QUALYS_CLIENT_SECRET }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_REF_NAME: ${{ github.ref_name }}
           GITHUB_EVENT_NAME: ${{ github.event_name }}
@@ -60,7 +62,8 @@ jobs:
             echo "-------------------------------------------"
             echo "🔍 Environment variables for: $image"
             echo "-------------------------------------------"
-            echo "QUALYS_ACCESS_TOKEN     : [REDACTED]"
+            echo "QUALYS_CLIENT_ID        : [REDACTED]"
+            echo "QUALYS_CLIENT_SECRET    : [REDACTED]"
             echo "DISABLE_SBOM_UPLOAD     : no"
             echo "SHOW_RESPONSE_BODY      : yes"
             echo "GITHUB_REPOSITORY       : $GITHUB_REPOSITORY"
@@ -71,16 +74,17 @@ jobs:
             echo "GITHUB_RUN_ID           : $GITHUB_RUN_ID"
             echo "GITHUB_SERVER_URL       : $GITHUB_SERVER_URL"
             echo "GIT_COMMITTER_NAME      : $GIT_COMMITTER_NAME"
+            echo "COMMIT_DATETIME         : $COMMIT_DATETIME"
             echo "IMAGE                   : $image"
             echo "IMAGE_SHA               : $image_sha_plain"
             echo "SAFE_IMAGE_NAME         : $safe_image_name"
             echo "SARIF_OUTPUT_DIR        : $SARIF_REPORT_DIR/$safe_image_name"
-            echo "COMMIT_DATETIME         : $COMMIT_DATETIME"
             echo "-------------------------------------------"
 
             # ✅ Run QScanner — || true ensures exit code 43 (AUDIT) won't stop the loop
             sudo -E env \
-              QUALYS_ACCESS_TOKEN=$QUALYS_ACCESS_TOKEN \
+              QUALYS_CLIENT_ID=$QUALYS_CLIENT_ID \
+              QUALYS_CLIENT_SECRET=$QUALYS_CLIENT_SECRET \
               DISABLE_SBOM_UPLOAD=no \
               SHOW_RESPONSE_BODY_IN_BACKEND_ERROR=yes \
               GITHUB_REPOSITORY=$GITHUB_REPOSITORY \
@@ -93,13 +97,14 @@ jobs:
               GIT_COMMITTER_NAME="$GIT_COMMITTER_NAME" \
             /home/ubuntu/Qscanner-5.0.0/qscanner image $image_sha \
               --pod ENG-POD04 \
-              --access-token $QUALYS_ACCESS_TOKEN \
+              --client-id $QUALYS_CLIENT_ID \
+              --client-secret $QUALYS_CLIENT_SECRET \
               --report-format sarif \
               -o $SARIF_REPORT_DIR/$safe_image_name \
               --scan-timeout 30m \
               --skip-verify-tls \
               -l debug \
-              --scan-types secret \
+              --scan-types pkg,secret \
               -m evaluate-policy \
               --storage-driver docker-overlay2 || true
 
