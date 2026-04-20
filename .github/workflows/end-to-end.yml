@@ -41,9 +41,17 @@ jobs:
         run: |
           IMAGE_LIST_FILE=images.txt
           SARIF_REPORT_DIR=/home/ubuntu/Qscanner-5.0.0/sarif-reports
-          SARIF_PATHS=()
+          SARIF_UPLOAD_DIR=/home/ubuntu/Qscanner-5.0.0/sarif-upload
+
+          # ✅ Clean and recreate upload dir at start of each run
+          rm -rf $SARIF_UPLOAD_DIR
+          mkdir -p $SARIF_UPLOAD_DIR
 
           while IFS= read -r image; do
+
+            # ✅ Skip empty lines and comments
+            [[ -z "$image" || "$image" == \#* ]] && continue
+
             echo "==========================================="
             echo "📦 Processing image: $image"
             echo "==========================================="
@@ -106,15 +114,25 @@ jobs:
               -l debug \
               --scan-types pkg,secret \
               -m evaluate-policy \
-              --storage-driver docker-overlay2  \
+              --storage-driver docker-overlay2 \
               --collect-build-pipeline-metadata=false || true
 
-            # ✅ Dynamically find SARIF file using image SHA
-            sarif_file=$(find $SARIF_REPORT_DIR/$safe_image_name -name "${image_sha_plain}*-Report.sarif.json" 2>/dev/null | head -1)
+            # ✅ Debug — print where we are looking for SARIF
+            echo "-------------------------------------------"
+            echo "🔍 Looking for SARIF in : $SARIF_REPORT_DIR/$safe_image_name"
+            echo "🔍 Expected filename    : ${image_sha_plain}-Report.sarif.json"
+            echo "🔍 Files in output dir  :"
+            ls -la $SARIF_REPORT_DIR/$safe_image_name 2>/dev/null || echo "⚠️ Directory does not exist"
+            echo "-------------------------------------------"
+
+            # ✅ Find SARIF file using exact naming convention <image-sha>-Report.sarif.json
+            sarif_file=$(find $SARIF_REPORT_DIR/$safe_image_name -name "${image_sha_plain}-Report.sarif.json" 2>/dev/null | head -1)
 
             if [ -n "$sarif_file" ]; then
               echo "✅ SARIF report found: $sarif_file"
-              SARIF_PATHS+=("$sarif_file")
+              # ✅ Copy to flat upload directory
+              cp "$sarif_file" $SARIF_UPLOAD_DIR/
+              echo "✅ Copied to upload dir: $SARIF_UPLOAD_DIR/$(basename $sarif_file)"
             else
               echo "⚠️ No SARIF report found for $image in $SARIF_REPORT_DIR/$safe_image_name"
             fi
@@ -124,39 +142,17 @@ jobs:
 
           done < "$IMAGE_LIST_FILE"
 
-          # ✅ Print summary of all collected SARIF reports
+          # ✅ Print summary of all SARIF files ready for upload
           echo "==========================================="
-          echo "📊 SARIF reports collected:"
+          echo "📊 SARIF reports ready for upload:"
           echo "==========================================="
-          if [ ${#SARIF_PATHS[@]} -eq 0 ]; then
-            echo "⚠️ No SARIF reports were generated"
-          else
-            printf '%s\n' "${SARIF_PATHS[@]}"
-          fi
+          ls -la $SARIF_UPLOAD_DIR 2>/dev/null || echo "⚠️ No SARIF reports found"
 
-          # ✅ Write paths to file for upload step
-          printf '%s\n' "${SARIF_PATHS[@]}" | tee /home/ubuntu/Qscanner-5.0.0/sarif-reports/sarif_paths.txt
-
-      # ✅ Upload each SARIF file dynamically
+      # ✅ Upload all SARIF files from flat upload directory
       - name: Upload SARIF files
-        run: |
-          SARIF_PATHS_FILE=/home/ubuntu/Qscanner-5.0.0/sarif-reports/sarif_paths.txt
-
-          if [ ! -f "$SARIF_PATHS_FILE" ] || [ ! -s "$SARIF_PATHS_FILE" ]; then
-            echo "⚠️ No SARIF reports to upload"
-            exit 0
-          fi
-
-          echo "==========================================="
-          echo "⬆️  Uploading SARIF reports"
-          echo "==========================================="
-
-          while IFS= read -r sarif_file; do
-            echo "Uploading: $sarif_file"
-            gh sarif upload "$sarif_file" \
-              --repo ${{ github.repository }} \
-              --ref ${{ github.ref }} \
-              --commit ${{ github.sha }} || echo "⚠️ Upload failed for $sarif_file, continuing..."
-          done < "$SARIF_PATHS_FILE"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          # ✅ Flat directory — all SARIF files in one place, no subdirectory confusion
+          sarif_file: /home/ubuntu/Qscanner-5.0.0/sarif-upload/
+          category: qscanner-results
