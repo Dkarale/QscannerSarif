@@ -106,7 +106,8 @@ jobs:
               -l debug \
               --scan-types pkg,secret \
               -m evaluate-policy \
-              --storage-driver docker-overlay2 || true
+              --storage-driver docker-overlay2 || true \
+              --collect-build-pipeline-metadata=false
 
             # ✅ Dynamically find SARIF file using image SHA
             sarif_file=$(find $SARIF_REPORT_DIR/$safe_image_name -name "${image_sha_plain}*-Report.sarif.json" 2>/dev/null | head -1)
