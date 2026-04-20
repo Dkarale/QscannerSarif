@@ -130,11 +130,12 @@ jobs:
 
             if [ -n "$sarif_file" ]; then
               echo "✅ SARIF report found: $sarif_file"
-              # ✅ Copy to flat upload directory
               cp "$sarif_file" $SARIF_UPLOAD_DIR/
-              echo "✅ Copied to upload dir: $SARIF_UPLOAD_DIR/$(basename $sarif_file)"
+              echo "✅ Copied to: $SARIF_UPLOAD_DIR/$(basename $sarif_file)"
             else
-              echo "⚠️ No SARIF report found for $image in $SARIF_REPORT_DIR/$safe_image_name"
+              echo "⚠️ No SARIF report found for $image"
+              echo "🔍 Trying wildcard search..."
+              find $SARIF_REPORT_DIR/$safe_image_name -name "*.sarif*" 2>/dev/null || echo "⚠️ No sarif files at all"
             fi
 
             echo "🗑️  Deleting scanned image: $image"
@@ -142,17 +143,35 @@ jobs:
 
           done < "$IMAGE_LIST_FILE"
 
-          # ✅ Print summary of all SARIF files ready for upload
           echo "==========================================="
-          echo "📊 SARIF reports ready for upload:"
+          echo "📊 Final contents of upload directory:"
           echo "==========================================="
-          ls -la $SARIF_UPLOAD_DIR 2>/dev/null || echo "⚠️ No SARIF reports found"
+          ls -la $SARIF_UPLOAD_DIR
+
+      # ✅ Debug step — runs before upload to verify files exist
+      - name: Debug SARIF directories
+        if: always()
+        run: |
+          echo "==========================================="
+          echo "🔍 Checking SARIF directories"
+          echo "==========================================="
+
+          echo "--- sarif-upload dir ---"
+          ls -la /home/ubuntu/Qscanner-5.0.0/sarif-upload/ 2>/dev/null || echo "⚠️ sarif-upload does not exist"
+
+          echo "--- sarif-reports dir ---"
+          ls -la /home/ubuntu/Qscanner-5.0.0/sarif-reports/ 2>/dev/null || echo "⚠️ sarif-reports does not exist"
+
+          echo "--- All SARIF files found recursively ---"
+          find /home/ubuntu/Qscanner-5.0.0/ -name "*.sarif.json" 2>/dev/null || echo "⚠️ No .sarif.json files found"
+
+          echo "--- All SARIF files (alternate extension) ---"
+          find /home/ubuntu/Qscanner-5.0.0/ -name "*.sarif" 2>/dev/null || echo "⚠️ No .sarif files found"
 
       # ✅ Upload all SARIF files from flat upload directory
       - name: Upload SARIF files
         if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
-          # ✅ Flat directory — all SARIF files in one place, no subdirectory confusion
           sarif_file: /home/ubuntu/Qscanner-5.0.0/sarif-upload/
           category: qscanner-results
