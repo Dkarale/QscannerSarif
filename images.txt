@@ -1,1 +1,1 @@
-bkimminich/juice-shop:latest
+iojs:latest
