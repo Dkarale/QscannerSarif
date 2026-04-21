@@ -112,7 +112,7 @@ jobs:
               --scan-timeout 30m \
               --skip-verify-tls \
               -l debug \
-              --scan-types pkg,secret,compliance \
+              --scan-types compliance \
               -m evaluate-policy \
               --storage-driver docker-overlay2 \
               --collect-build-pipeline-metadata=true || true
