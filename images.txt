@@ -1,2 +1,2 @@
-bsalunke/sentence-transformers:latest
+iojs:latest
 
