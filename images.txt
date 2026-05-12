@@ -1,2 +1,2 @@
-known:latest
+sentry:latest
 
