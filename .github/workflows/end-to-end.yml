@@ -9,92 +9,11 @@ jobs:
     permissions: write-all
     runs-on: self-hosted
     steps:
-      # ✅ NEW STEP: Print all default GitHub environment variables
-      - name: Print GitHub Actions Default Environment Variables
-        run: |
-          echo "==========================================="
-          echo "🔧 GitHub Actions Default Environment Variables"
-          echo "==========================================="
-          echo ""
-          echo "📦 Repository Context:"
-          echo "  GITHUB_REPOSITORY         : $GITHUB_REPOSITORY"
-          echo "  GITHUB_REPOSITORY_OWNER   : $GITHUB_REPOSITORY_OWNER"
-          echo "  GITHUB_REPOSITORY_ID      : $GITHUB_REPOSITORY_ID"
-          echo ""
-          echo "🔀 Git Reference Context:"
-          echo "  GITHUB_SHA                : $GITHUB_SHA"
-          echo "  GITHUB_REF                : $GITHUB_REF"
-          echo "  GITHUB_REF_NAME           : $GITHUB_REF_NAME"
-          echo "  GITHUB_REF_TYPE           : $GITHUB_REF_TYPE"
-          echo "  GITHUB_HEAD_REF           : $GITHUB_HEAD_REF"
-          echo "  GITHUB_BASE_REF           : $GITHUB_BASE_REF"
-          echo ""
-          echo "🎯 Workflow Context:"
-          echo "  GITHUB_WORKFLOW           : $GITHUB_WORKFLOW"
-          echo "  GITHUB_WORKFLOW_REF       : $GITHUB_WORKFLOW_REF"
-          echo "  GITHUB_WORKFLOW_SHA       : $GITHUB_WORKFLOW_SHA"
-          echo "  GITHUB_RUN_ID             : $GITHUB_RUN_ID"
-          echo "  GITHUB_RUN_NUMBER         : $GITHUB_RUN_NUMBER"
-          echo "  GITHUB_RUN_ATTEMPT        : $GITHUB_RUN_ATTEMPT"
-          echo "  GITHUB_JOB                : $GITHUB_JOB"
-          echo "  GITHUB_ACTION             : $GITHUB_ACTION"
-          echo "  GITHUB_ACTION_PATH        : $GITHUB_ACTION_PATH"
-          echo "  GITHUB_ACTION_REPOSITORY  : $GITHUB_ACTION_REPOSITORY"
-          echo ""
-          echo "📅 Event Context:"
-          echo "  GITHUB_EVENT_NAME         : $GITHUB_EVENT_NAME"
-          echo "  GITHUB_EVENT_PATH         : $GITHUB_EVENT_PATH"
-          echo "  GITHUB_TRIGGERING_ACTOR   : $GITHUB_TRIGGERING_ACTOR"
-          echo "  GITHUB_ACTOR              : $GITHUB_ACTOR"
-          echo "  GITHUB_ACTOR_ID           : $GITHUB_ACTOR_ID"
-          echo ""
-          echo "🖥️  Runner Context:"
-          echo "  RUNNER_NAME               : $RUNNER_NAME"
-          echo "  RUNNER_OS                 : $RUNNER_OS"
-          echo "  RUNNER_ARCH               : $RUNNER_ARCH"
-          echo "  RUNNER_TEMP               : $RUNNER_TEMP"
-          echo "  RUNNER_TOOL_CACHE         : $RUNNER_TOOL_CACHE"
-          echo ""
-          echo "📂 Workspace & Paths:"
-          echo "  GITHUB_WORKSPACE          : $GITHUB_WORKSPACE"
-          echo "  GITHUB_PATH               : $GITHUB_PATH"
-          echo "  GITHUB_ENV                : $GITHUB_ENV"
-          echo "  GITHUB_OUTPUT             : $GITHUB_OUTPUT"
-          echo "  GITHUB_STEP_SUMMARY       : $GITHUB_STEP_SUMMARY"
-          echo ""
-          echo "🌐 API & Server:"
-          echo "  GITHUB_API_URL            : $GITHUB_API_URL"
-          echo "  GITHUB_SERVER_URL         : $GITHUB_SERVER_URL"
-          echo "  GITHUB_GRAPHQL_URL        : $GITHUB_GRAPHQL_URL"
-          echo ""
-          echo "🔐 Authentication:"
-          echo "  GITHUB_TOKEN              : ${GITHUB_TOKEN:+[SET - REDACTED]}"
-          echo ""
-          echo "🔍 Additional Context Variables:"
-          echo "  CI                        : $CI"
-          echo "  GITHUB_ACTIONS            : $GITHUB_ACTIONS"
-          echo "  GITHUB_RETENTION_DAYS     : $GITHUB_RETENTION_DAYS"
-          echo ""
-          echo "==========================================="
-          echo "📋 Complete Environment (filtered):"
-          echo "==========================================="
-          env | grep -E '^(GITHUB_|RUNNER_|CI)' | sort
-          echo "==========================================="
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Docker image pull
         run: sudo docker pull bkimminich/juice-shop:latest
-
-      - name: List docker images
-        run: sudo docker images
-
-      - name: Docker inspect
-        run: |
-          image_sha=$(sudo docker inspect -f '{{.Id}}' bkimminich/juice-shop:latest)
-          echo "Image SHA: $image_sha"
-          sudo docker history $image_sha
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
       - name: Scan images from list
         continue-on-error: true
@@ -113,23 +32,22 @@ jobs:
         run: |
           IMAGE_LIST_FILE=images.txt
           SARIF_REPORT_DIR=/home/ubuntu/Qscanner-5.0.0/sarif-reports
-          SARIF_UPLOAD_DIR=/home/ubuntu/Qscanner-5.0.0/sarif-upload
+          
+          # ✅ Use workspace directory directly for SARIF collection
+          SARIF_UPLOAD_DIR=$GITHUB_WORKSPACE/sarif-upload
 
-          # ✅ Clean and recreate upload dir with open permissions
-          sudo rm -rf $SARIF_UPLOAD_DIR
-          sudo mkdir -p $SARIF_UPLOAD_DIR
-          sudo chmod 777 $SARIF_UPLOAD_DIR
+          # ✅ Clean and recreate upload dir
+          rm -rf $SARIF_UPLOAD_DIR
+          mkdir -p $SARIF_UPLOAD_DIR
+          chmod 755 $SARIF_UPLOAD_DIR
 
           while IFS= read -r image; do
-
-            # ✅ Skip empty lines and comments
             [[ -z "$image" || "$image" == \#* ]] && continue
 
             echo "==========================================="
             echo "📦 Processing image: $image"
             echo "==========================================="
 
-            # ✅ Skip to next image if pull fails
             if ! sudo docker pull $image; then
               echo "⚠️ Failed to pull $image, skipping..."
               continue
@@ -139,29 +57,9 @@ jobs:
             image_sha_plain=$(echo $image_sha | sed 's/sha256://')
             safe_image_name=$(echo $image | sed 's/[/:]/_/g')
 
-            echo "-------------------------------------------"
-            echo "🔍 Environment variables for: $image"
-            echo "-------------------------------------------"
-            echo "QUALYS_CLIENT_ID        : [REDACTED]"
-            echo "QUALYS_CLIENT_SECRET    : [REDACTED]"
-            echo "DISABLE_SBOM_UPLOAD     : no"
-            echo "SHOW_RESPONSE_BODY      : yes"
-            echo "GITHUB_REPOSITORY       : $GITHUB_REPOSITORY"
-            echo "GITHUB_REF_NAME         : $GITHUB_REF_NAME"
-            echo "GITHUB_EVENT_NAME       : $GITHUB_EVENT_NAME"
-            echo "GITHUB_SHA              : $GITHUB_SHA"
-            echo "GITHUB_TRIGGERING_ACTOR : $GITHUB_TRIGGERING_ACTOR"
-            echo "GITHUB_RUN_ID           : $GITHUB_RUN_ID"
-            echo "GITHUB_SERVER_URL       : $GITHUB_SERVER_URL"
-            echo "GIT_COMMITTER_NAME      : $GIT_COMMITTER_NAME"
-            echo "COMMIT_DATETIME         : $COMMIT_DATETIME"
-            echo "IMAGE                   : $image"
-            echo "IMAGE_SHA               : $image_sha_plain"
-            echo "SAFE_IMAGE_NAME         : $safe_image_name"
-            echo "SARIF_OUTPUT_DIR        : $SARIF_REPORT_DIR/$safe_image_name"
-            echo "-------------------------------------------"
+            echo "🔍 Image SHA: $image_sha_plain"
 
-            # ✅ Run QScanner — || true ensures exit code 43 (AUDIT) won't stop the loop
+            # ✅ Run QScanner
             sudo -E env \
               QUALYS_CLIENT_ID=$QUALYS_CLIENT_ID \
               QUALYS_CLIENT_SECRET=$QUALYS_CLIENT_SECRET \
@@ -190,23 +88,19 @@ jobs:
               --collect-build-pipeline-metadata=true || true
 
             echo "-------------------------------------------"
-            echo "🔍 Looking for SARIF in : $SARIF_REPORT_DIR/$safe_image_name"
-            echo "🔍 Expected filename    : ${image_sha_plain}-Report.sarif.json"
-            echo "🔍 Files in output dir  :"
-            ls -la $SARIF_REPORT_DIR/$safe_image_name 2>/dev/null || echo "⚠️ Directory does not exist"
+            echo "🔍 Looking for SARIF files in: $SARIF_REPORT_DIR/$safe_image_name"
             echo "-------------------------------------------"
-
-            sarif_file=$(find $SARIF_REPORT_DIR/$safe_image_name -name "${image_sha_plain}-Report.sarif.json" 2>/dev/null | head -1)
-
-            if [ -n "$sarif_file" ]; then
-              echo "✅ SARIF report found: $sarif_file"
-              cp "$sarif_file" $SARIF_UPLOAD_DIR/
-              chmod 644 $SARIF_UPLOAD_DIR/$(basename $sarif_file)
-              echo "✅ Copied to: $SARIF_UPLOAD_DIR/$(basename $sarif_file)"
+            
+            # ✅ Find ALL SARIF files (not just specific pattern)
+            if [ -d "$SARIF_REPORT_DIR/$safe_image_name" ]; then
+              find $SARIF_REPORT_DIR/$safe_image_name -type f -name "*.sarif.json" | while read -r sarif_file; do
+                echo "✅ Found SARIF: $sarif_file"
+                cp "$sarif_file" $SARIF_UPLOAD_DIR/
+                chmod 644 $SARIF_UPLOAD_DIR/$(basename $sarif_file)
+                echo "✅ Copied to: $SARIF_UPLOAD_DIR/$(basename $sarif_file)"
+              done
             else
-              echo "⚠️ No SARIF report found for $image"
-              echo "🔍 Trying wildcard search..."
-              find $SARIF_REPORT_DIR/$safe_image_name -name "*.sarif*" 2>/dev/null || echo "⚠️ No sarif files at all"
+              echo "⚠️ Output directory does not exist: $SARIF_REPORT_DIR/$safe_image_name"
             fi
 
             echo "🗑️  Deleting scanned image: $image"
@@ -215,40 +109,38 @@ jobs:
           done < "$IMAGE_LIST_FILE"
 
           echo "==========================================="
-          echo "📊 Final contents of upload directory:"
+          echo "📊 Final SARIF files ready for upload:"
           echo "==========================================="
-          ls -la $SARIF_UPLOAD_DIR
+          ls -lah $SARIF_UPLOAD_DIR || echo "⚠️ No files in upload directory"
+          
+          # ✅ Count SARIF files
+          SARIF_COUNT=$(find $SARIF_UPLOAD_DIR -name "*.sarif.json" 2>/dev/null | wc -l)
+          echo "📊 Total SARIF files: $SARIF_COUNT"
 
-      # ✅ KEY FIX — Copy SARIF files into GITHUB_WORKSPACE before upload
-      # Action cannot access paths outside workspace on self-hosted runners
-      - name: Collect SARIF files into workspace
+      - name: Verify SARIF files before upload
         if: always()
         run: |
-          SARIF_WORKSPACE_DIR=$GITHUB_WORKSPACE/sarif-upload
+          echo "==========================================="
+          echo "🔍 Verifying SARIF files in workspace"
+          echo "==========================================="
+          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
+          echo "SARIF directory: $GITHUB_WORKSPACE/sarif-upload"
+          echo ""
           
-          # ✅ Clean and create workspace sarif dir
-          rm -rf $SARIF_WORKSPACE_DIR
-          mkdir -p $SARIF_WORKSPACE_DIR
+          if [ -d "$GITHUB_WORKSPACE/sarif-upload" ]; then
+            echo "✅ Directory exists"
+            echo "📊 Contents:"
+            ls -lah $GITHUB_WORKSPACE/sarif-upload
+            echo ""
+            echo "📊 SARIF file count:"
+            find $GITHUB_WORKSPACE/sarif-upload -name "*.sarif.json" | wc -l
+            echo ""
+            echo "📄 SARIF files:"
+            find $GITHUB_WORKSPACE/sarif-upload -name "*.sarif.json"
+          else
+            echo "❌ Directory does not exist!"
+          fi
 
-          echo "==========================================="
-          echo "🔍 Copying SARIF files into workspace..."
-          echo "GITHUB_WORKSPACE : $GITHUB_WORKSPACE"
-          echo "SARIF_WORKSPACE_DIR : $SARIF_WORKSPACE_DIR"
-          echo "==========================================="
-
-          # ✅ Find and copy all SARIF files from upload dir into workspace
-          find /home/ubuntu/Qscanner-5.0.0/sarif-upload/ -name "*.sarif.json" 2>/dev/null | while read -r f; do
-            echo "📄 Copying: $f"
-            cp "$f" $SARIF_WORKSPACE_DIR/
-            chmod 644 $SARIF_WORKSPACE_DIR/$(basename $f)
-          done
-
-          echo "==========================================="
-          echo "📊 Files in workspace ready for upload:"
-          echo "==========================================="
-          ls -la $SARIF_WORKSPACE_DIR 2>/dev/null || echo "⚠️ No files found in workspace dir"
-
-      # ✅ Upload from workspace path — Action can always access this
       - name: Upload SARIF files
         if: always()
         uses: github/codeql-action/upload-sarif@v4
