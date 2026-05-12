@@ -115,19 +115,10 @@ jobs:
             if [ -f "$sarif_file" ]; then
               echo "📤 Uploading: $(basename $sarif_file)"
               
-              # Create JSON payload file
               PAYLOAD_FILE=$(mktemp)
+              SARIF_GZIP_BASE64=$(cat "$sarif_file" | gzip | base64 -w 0)
               
-              cat > "$PAYLOAD_FILE" <<EOF
-{
-  "commit_sha": "${{ github.sha }}",
-  "ref": "${{ github.ref }}",
-  "sarif": "$(cat "$sarif_file" | gzip | base64 -w 0)",
-  "checkout_uri": "${{ github.server_url }}/${{ github.repository }}",
-  "started_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-  "tool_name": "QScanner"
-}
-EOF
+              echo "{\"commit_sha\":\"${{ github.sha }}\",\"ref\":\"${{ github.ref }}\",\"sarif\":\"${SARIF_GZIP_BASE64}\",\"checkout_uri\":\"${{ github.server_url }}/${{ github.repository }}\",\"started_at\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"tool_name\":\"QScanner\"}" > "$PAYLOAD_FILE"
               
               curl -L -X POST \
                 -H "Accept: application/vnd.github+json" \
