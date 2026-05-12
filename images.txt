@@ -1,2 +1,2 @@
-iojs:latest
+known:latest
 
