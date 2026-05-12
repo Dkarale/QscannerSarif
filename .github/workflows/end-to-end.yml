@@ -12,9 +12,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Docker image pull
-        run: sudo docker pull bkimminich/juice-shop:latest
-
       - name: Scan images from list
         continue-on-error: true
         env:
@@ -32,11 +29,8 @@ jobs:
         run: |
           IMAGE_LIST_FILE=images.txt
           SARIF_REPORT_DIR=/home/ubuntu/Qscanner-5.0.0/sarif-reports
-          
-          # ✅ Use workspace directory directly for SARIF collection
           SARIF_UPLOAD_DIR=$GITHUB_WORKSPACE/sarif-upload
 
-          # ✅ Clean and recreate upload dir
           rm -rf $SARIF_UPLOAD_DIR
           mkdir -p $SARIF_UPLOAD_DIR
           chmod 755 $SARIF_UPLOAD_DIR
@@ -57,9 +51,6 @@ jobs:
             image_sha_plain=$(echo $image_sha | sed 's/sha256://')
             safe_image_name=$(echo $image | sed 's/[/:]/_/g')
 
-            echo "🔍 Image SHA: $image_sha_plain"
-
-            # ✅ Run QScanner
             sudo -E env \
               QUALYS_CLIENT_ID=$QUALYS_CLIENT_ID \
               QUALYS_CLIENT_SECRET=$QUALYS_CLIENT_SECRET \
@@ -87,11 +78,6 @@ jobs:
               --storage-driver docker-overlay2 \
               --collect-build-pipeline-metadata=true || true
 
-            echo "-------------------------------------------"
-            echo "🔍 Looking for SARIF files in: $SARIF_REPORT_DIR/$safe_image_name"
-            echo "-------------------------------------------"
-            
-            # ✅ Find ALL SARIF files (not just specific pattern)
             if [ -d "$SARIF_REPORT_DIR/$safe_image_name" ]; then
               find $SARIF_REPORT_DIR/$safe_image_name -type f -name "*.sarif.json" | while read -r sarif_file; do
                 echo "✅ Found SARIF: $sarif_file"
@@ -99,11 +85,8 @@ jobs:
                 chmod 644 $SARIF_UPLOAD_DIR/$(basename $sarif_file)
                 echo "✅ Copied to: $SARIF_UPLOAD_DIR/$(basename $sarif_file)"
               done
-            else
-              echo "⚠️ Output directory does not exist: $SARIF_REPORT_DIR/$safe_image_name"
             fi
 
-            echo "🗑️  Deleting scanned image: $image"
             sudo docker rmi $image || true
 
           done < "$IMAGE_LIST_FILE"
@@ -112,38 +95,39 @@ jobs:
           echo "📊 Final SARIF files ready for upload:"
           echo "==========================================="
           ls -lah $SARIF_UPLOAD_DIR || echo "⚠️ No files in upload directory"
-          
-          # ✅ Count SARIF files
-          SARIF_COUNT=$(find $SARIF_UPLOAD_DIR -name "*.sarif.json" 2>/dev/null | wc -l)
-          echo "📊 Total SARIF files: $SARIF_COUNT"
-
-      - name: Verify SARIF files before upload
-        if: always()
-        run: |
-          echo "==========================================="
-          echo "🔍 Verifying SARIF files in workspace"
-          echo "==========================================="
-          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
-          echo "SARIF directory: $GITHUB_WORKSPACE/sarif-upload"
-          echo ""
-          
-          if [ -d "$GITHUB_WORKSPACE/sarif-upload" ]; then
-            echo "✅ Directory exists"
-            echo "📊 Contents:"
-            ls -lah $GITHUB_WORKSPACE/sarif-upload
-            echo ""
-            echo "📊 SARIF file count:"
-            find $GITHUB_WORKSPACE/sarif-upload -name "*.sarif.json" | wc -l
-            echo ""
-            echo "📄 SARIF files:"
-            find $GITHUB_WORKSPACE/sarif-upload -name "*.sarif.json"
-          else
-            echo "❌ Directory does not exist!"
-          fi
 
       - name: Upload SARIF files
         if: always()
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: sarif-upload/
-          category: qscanner-results
+        shell: bash
+        run: |
+          cd $GITHUB_WORKSPACE
+          
+          SARIF_COUNT=$(find sarif-upload -name "*.sarif.json" 2>/dev/null | wc -l)
+          
+          if [ "$SARIF_COUNT" -eq 0 ]; then
+            echo "⚠️ No SARIF files found to upload"
+            exit 0
+          fi
+          
+          echo "📤 Uploading $SARIF_COUNT SARIF file(s)..."
+          
+          for sarif_file in sarif-upload/*.sarif.json; do
+            if [ -f "$sarif_file" ]; then
+              echo "📤 Uploading: $(basename $sarif_file)"
+              
+              SARIF_BASE64=$(cat "$sarif_file" | base64 -w 0)
+              
+              curl -L -X POST \
+                -H "Accept: application/vnd.github+json" \
+                -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                -H "X-GitHub-Api-Version: 2022-11-28" \
+                "${{ github.api_url }}/repos/${{ github.repository }}/code-scanning/sarifs" \
+                -d "{\"commit_sha\":\"${{ github.sha }}\",\"ref\":\"${{ github.ref }}\",\"sarif\":\"${SARIF_BASE64}\",\"checkout_uri\":\"${{ github.server_url }}/${{ github.repository }}\",\"started_at\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"tool_name\":\"QScanner\"}"
+              
+              echo "✅ Uploaded: $(basename $sarif_file)"
+            fi
+          done
+          
+          echo "✅ All SARIF files uploaded successfully"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
