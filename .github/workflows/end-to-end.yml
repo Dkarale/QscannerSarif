@@ -65,7 +65,7 @@ jobs:
               GITHUB_SERVER_URL=$GITHUB_SERVER_URL \
               GIT_COMMITTER_NAME="$GIT_COMMITTER_NAME" \
             /home/ubuntu/Qscanner-5.0.0/qscanner image $image_sha \
-              --pod ENG-IN1 \
+              --pod IN1 \
               --client-id $QUALYS_CLIENT_ID \
               --client-secret $QUALYS_CLIENT_SECRET \
               --report-format sarif \
