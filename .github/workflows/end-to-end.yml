@@ -15,6 +15,7 @@ jobs:
       - name: Scan images from list
         continue-on-error: true
         env:
+          QUALYS_ACCESS_TOKEN: ${{ secrets.QUALYS_ACCESS_TOKEN }}
           QUALYS_CLIENT_ID: ${{ secrets.QUALYS_CLIENT_ID }}
           QUALYS_CLIENT_SECRET: ${{ secrets.QUALYS_CLIENT_SECRET }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -35,6 +36,23 @@ jobs:
           mkdir -p $SARIF_UPLOAD_DIR
           chmod 755 $SARIF_UPLOAD_DIR
 
+          # Determine authentication method
+          if [ -n "$QUALYS_ACCESS_TOKEN" ]; then
+            echo "🔐 Using Qualys Access Token authentication"
+            AUTH_METHOD="token"
+            QSCANNER_AUTH_ARGS="--access-token $QUALYS_ACCESS_TOKEN"
+            SUDO_ENV_VARS="QUALYS_ACCESS_TOKEN=$QUALYS_ACCESS_TOKEN"
+          elif [ -n "$QUALYS_CLIENT_ID" ] && [ -n "$QUALYS_CLIENT_SECRET" ]; then
+            echo "🔐 Using Qualys Client ID/Secret authentication"
+            AUTH_METHOD="client"
+            QSCANNER_AUTH_ARGS="--client-id $QUALYS_CLIENT_ID --client-secret $QUALYS_CLIENT_SECRET"
+            SUDO_ENV_VARS="QUALYS_CLIENT_ID=$QUALYS_CLIENT_ID QUALYS_CLIENT_SECRET=$QUALYS_CLIENT_SECRET"
+          else
+            echo "❌ ERROR: No Qualys credentials found!"
+            echo "Please set either QUALYS_ACCESS_TOKEN or both QUALYS_CLIENT_ID and QUALYS_CLIENT_SECRET"
+            exit 1
+          fi
+
           while IFS= read -r image; do
             [[ -z "$image" || "$image" == \#* ]] && continue
 
@@ -52,8 +70,7 @@ jobs:
             safe_image_name=$(echo $image | sed 's/[/:]/_/g')
 
             sudo -E env \
-              QUALYS_CLIENT_ID=$QUALYS_CLIENT_ID \
-              QUALYS_CLIENT_SECRET=$QUALYS_CLIENT_SECRET \
+              $SUDO_ENV_VARS \
               DISABLE_SBOM_UPLOAD=no \
               SHOW_RESPONSE_BODY_IN_BACKEND_ERROR=yes \
               GITHUB_REPOSITORY=$GITHUB_REPOSITORY \
@@ -65,9 +82,8 @@ jobs:
               GITHUB_SERVER_URL=$GITHUB_SERVER_URL \
               GIT_COMMITTER_NAME="$GIT_COMMITTER_NAME" \
             /home/ubuntu/Qscanner-5.0.0/qscanner image $image_sha \
-              --pod IN1 \
-              --client-id $QUALYS_CLIENT_ID \
-              --client-secret $QUALYS_CLIENT_SECRET \
+              --pod US4 \
+              $QSCANNER_AUTH_ARGS \
               --report-format sarif \
               -o $SARIF_REPORT_DIR/$safe_image_name \
               --scan-timeout 30m \
