@@ -82,7 +82,7 @@ jobs:
               GITHUB_SERVER_URL=$GITHUB_SERVER_URL \
               GIT_COMMITTER_NAME="$GIT_COMMITTER_NAME" \
             /home/ubuntu/Qscanner-5.0.0/qscanner image $image_sha \
-              --pod US4 \
+              --pod CA1 \
               $QSCANNER_AUTH_ARGS \
               --report-format sarif \
               -o $SARIF_REPORT_DIR/$safe_image_name \
