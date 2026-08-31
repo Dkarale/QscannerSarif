@@ -1,2 +1,2 @@
-sentry:latest
+bkimminich/juice-shop:latest
 
