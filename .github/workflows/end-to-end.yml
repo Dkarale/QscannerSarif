@@ -92,7 +92,7 @@ jobs:
               --scan-types pkg,secret,compliance \
               -m evaluate-policy \
               --storage-driver docker-overlay2 \
-              --collect-build-pipeline-metadata=true --qualys-tags dk-cascade-code2image --cascade-tags || true
+              --collect-build-pipeline-metadata=true || true
 
             if [ -d "$SARIF_REPORT_DIR/$safe_image_name" ]; then
               find $SARIF_REPORT_DIR/$safe_image_name -type f -name "*.sarif.json" | while read -r sarif_file; do
@@ -167,7 +167,7 @@ jobs:
             -l debug \
             --scan-types pkg,secret \
             -m evaluate-policy \
-            --collect-build-pipeline-metadata=true --qualys-tags dk-cascade-code2image --cascade-tags || true
+            --collect-build-pipeline-metadata=true || true
 
           if [ -d "$SARIF_REPORT_DIR/vulnerable-app-code" ]; then
             find $SARIF_REPORT_DIR/vulnerable-app-code -type f -name "*.sarif.json" | while read -r sarif_file; do
@@ -201,7 +201,7 @@ jobs:
             --scan-types pkg,secret,compliance \
             -m evaluate-policy \
             --storage-driver docker-overlay2 \
-            --collect-build-pipeline-metadata=true --qualys-tags dk-cascade-code2image --cascade-tags || true
+            --collect-build-pipeline-metadata=true || true
 
           if [ -d "$SARIF_REPORT_DIR/vulnerable-app-image" ]; then
             find $SARIF_REPORT_DIR/vulnerable-app-image -type f -name "*.sarif.json" | while read -r sarif_file; do
