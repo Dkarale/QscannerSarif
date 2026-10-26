@@ -1,0 +1,6 @@
+Flask==0.12
+Django==2.0.1
+PyYAML==5.1
+requests==2.19.1
+urllib3==1.23
+Jinja2==2.10
