@@ -82,7 +82,7 @@ jobs:
               GITHUB_SERVER_URL=$GITHUB_SERVER_URL \
               GIT_COMMITTER_NAME="$GIT_COMMITTER_NAME" \
             /home/ubuntu/Qscanner-5.3.0/qscanner image $image_sha \
-              --pod CA1 \
+              --pod ENG-POD04 \
               $QSCANNER_AUTH_ARGS \
               --report-format sarif \
               -o $SARIF_REPORT_DIR/$safe_image_name \
@@ -158,7 +158,7 @@ jobs:
 
           sudo -E env $SUDO_COMMON_ENV GIT_COMMITTER_NAME="$GIT_COMMITTER_NAME" \
           /home/ubuntu/Qscanner-5.3.0/qscanner code $GITHUB_WORKSPACE \
-            --pod CA1 \
+            --pod ENG-POD04 \
             $QSCANNER_AUTH_ARGS \
             --report-format sarif \
             -o $SARIF_REPORT_DIR/vulnerable-app-code \
@@ -191,7 +191,7 @@ jobs:
 
           sudo -E env $SUDO_COMMON_ENV GIT_COMMITTER_NAME="$GIT_COMMITTER_NAME" \
           /home/ubuntu/Qscanner-5.3.0/qscanner image $image_sha \
-            --pod CA1 \
+            --pod ENG-POD04 \
             $QSCANNER_AUTH_ARGS \
             --report-format sarif \
             -o $SARIF_REPORT_DIR/vulnerable-app-image \
